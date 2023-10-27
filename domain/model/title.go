@@ -12,17 +12,19 @@ type Title struct {
 func NewTitle(value string) (*Title, error) {
 	log.Println("start NewTitle domain")
 
+	strlen := len([]rune(value))
+
 	log.Println("check value empty string")
 	if value == "" {
 		return nil, fmt.Errorf("please enter a title")
 	}
 
-	if len([]rune(value)) < 3 {
-		return nil, fmt.Errorf("title is more than 3 characters Received value length: %v", len(value))
+	if strlen < 3 {
+		return nil, fmt.Errorf("title should be at least 3 characters. Received value length: %v", strlen)
 	}
 
-	if len([]rune(value)) > 20 {
-		return nil, fmt.Errorf("title is less than 20 characters Received value length: %v", len(value))
+	if strlen > 20 {
+		return nil, fmt.Errorf("title should be less than 20 characters. Received value length: %v", strlen)
 	}
 
 	log.Println("end NewTitle domain")
@@ -30,5 +32,5 @@ func NewTitle(value string) (*Title, error) {
 }
 
 func (title *Title) String() string {
-	return string(title.value)
+	return title.value
 }

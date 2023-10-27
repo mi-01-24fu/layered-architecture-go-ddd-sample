@@ -10,6 +10,7 @@ import (
 
 type MemoUsecase interface {
 	Create(ctx context.Context, title, content, date string) (*model.Memo, error)
+	Get(ctx context.Context) ([]*model.Memo, error)
 }
 
 type memoUsecase struct {
@@ -34,7 +35,7 @@ func (m memoUsecase) Create(ctx context.Context, title, content, date string) (*
 	}
 
 	log.Println("call memo repository count method")
-	isMemoExists, err := m.memoRepository.Count(ctx, memo)
+	isMemoExists, err := m.memoRepository.Exists(ctx, memo)
 	if err != nil {
 		return nil, err
 	}
@@ -51,4 +52,13 @@ func (m memoUsecase) Create(ctx context.Context, title, content, date string) (*
 
 	log.Println("end create usecase")
 	return createdMemo, nil
+}
+
+func (m memoUsecase) Get(ctx context.Context) ([]*model.Memo, error) {
+	memos, err := m.memoRepository.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return memos, nil
 }

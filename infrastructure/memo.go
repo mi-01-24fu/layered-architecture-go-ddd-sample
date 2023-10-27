@@ -9,21 +9,21 @@ import (
 	"layered-architecture-go-ddd-sample/domain/model"
 	"layered-architecture-go-ddd-sample/domain/model/repository"
 	"layered-architecture-go-ddd-sample/infrastructure/models"
-	"log"
 )
 
 type MemoRepository struct {
-	DB *sql.DB
+	DB          *sql.DB
+	MemoFactory model.MemoFactory
 }
 
-func NewMemoRepository(DB *sql.DB) repository.MemoRepository {
-	return &MemoRepository{DB: DB}
+func NewMemoRepository(db *sql.DB, memoFactory model.MemoFactory) repository.MemoRepository {
+	return &MemoRepository{
+		DB:          db,
+		MemoFactory: memoFactory,
+	}
 }
 
-func (m MemoRepository) Count(ctx context.Context, memo *model.Memo) (bool, error) {
-	log.Println("start count infrastructure")
-
-	log.Println("call models count method")
+func (m MemoRepository) Exists(ctx context.Context, memo *model.Memo) (bool, error) {
 	count, err := models.Memos(models.MemoWhere.Title.EQ(memo.Title.String())).Count(ctx, m.DB)
 	if err != nil {
 		return true, fmt.Errorf("duplicate confirmation error: %v", err)
@@ -32,15 +32,11 @@ func (m MemoRepository) Count(ctx context.Context, memo *model.Memo) (bool, erro
 		return true, nil
 	}
 
-	log.Println("end count infrastructure")
 	return false, nil
 }
 
 func (m MemoRepository) Create(ctx context.Context, memo *model.Memo) (*model.Memo, error) {
-	log.Println("start create infrastructure")
-
 	input := &models.Memo{
-		ID:      memo.Id,
 		Title:   memo.Title.String(),
 		Content: null.StringFrom(memo.Content.String()),
 		Date: null.Time{
@@ -48,12 +44,30 @@ func (m MemoRepository) Create(ctx context.Context, memo *model.Memo) (*model.Me
 		},
 	}
 
-	log.Println("call models insert method")
 	err := input.Insert(ctx, m.DB, boil.Infer())
 	if err != nil {
-		return &model.Memo{}, fmt.Errorf("database insert error: %v", err)
+		return nil, fmt.Errorf("database insert error: %v", err)
 	}
 
-	log.Println("end create infrastructure")
 	return memo, nil
+}
+
+func (m MemoRepository) Get(ctx context.Context) ([]*model.Memo, error) {
+	output, err := models.Memos().All(ctx, m.DB)
+	if err != nil {
+		return nil, fmt.Errorf("database get all error: %v", err)
+	}
+
+	var memos []*model.Memo
+
+	for _, memo := range output {
+		createdMemo, err := m.MemoFactory.Create(memo.Title, memo.Content.String, memo.Date.Time.String())
+		if err != nil {
+			return nil, err
+		}
+		createdMemo.SetID(memo.ID)
+		memos = append(memos, createdMemo)
+	}
+
+	return memos, nil
 }

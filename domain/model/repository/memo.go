@@ -6,6 +6,7 @@ import (
 )
 
 type MemoRepository interface {
-	Count(ctx context.Context, memo *model.Memo) (bool, error)
+	Exists(ctx context.Context, memo *model.Memo) (bool, error)
 	Create(ctx context.Context, memo *model.Memo) (*model.Memo, error)
+	Get(ctx context.Context) ([]*model.Memo, error)
 }

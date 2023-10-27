@@ -8,9 +8,14 @@ type Memo struct {
 }
 
 func NewMemo(title Title, content Content, date Date) *Memo {
+
 	return &Memo{
 		Title:   title,
 		Content: content,
 		Date:    date,
 	}
+}
+
+func (m *Memo) SetID(id int) {
+	m.Id = id
 }

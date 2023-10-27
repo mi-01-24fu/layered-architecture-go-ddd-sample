@@ -12,7 +12,7 @@ func NewMemoFactoryImpl() *MemoFactoryImpl {
 	return &MemoFactoryImpl{}
 }
 
-func (UserFactor MemoFactoryImpl) Create(title, content, date string) (*Memo, error) {
+func (m MemoFactoryImpl) Create(title, content, date string) (*Memo, error) {
 	log.Println("start create factory")
 
 	createTitle, err := NewTitle(title)

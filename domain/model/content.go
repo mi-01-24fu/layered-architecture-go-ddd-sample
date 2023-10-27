@@ -7,8 +7,8 @@ type Content struct {
 }
 
 func NewContent(value string) (*Content, error) {
-	if len(value) > 100 {
-		return nil, fmt.Errorf("title is less than 100 characters Received value length: %v", len(value))
+	if len([]rune(value)) > 100 {
+		return nil, fmt.Errorf("content is less than 100 characters Received value length: %v", len([]rune(value)))
 	}
 	return &Content{value: value}, nil
 }
