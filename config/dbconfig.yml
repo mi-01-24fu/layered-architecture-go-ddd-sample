@@ -1,0 +1,4 @@
+development:
+  dialect: mysql
+  datasource: root:root@tcp(127.0.0.1:3306)/sample_db?parseTime=true
+  dir: ../migrations/
